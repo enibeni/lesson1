@@ -2,8 +2,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from yandex_translate import YandexTranslate
 import telegram
 import ephem
-import datetime
-
+from datetime import datetime, date, time
 
 
 def main():
@@ -13,6 +12,7 @@ def main():
     dp.add_handler(CommandHandler("wordcount", count_words))
     dp.add_handler(CommandHandler("calc", calc_me))
     dp.add_handler(CommandHandler("moon", moon_status))
+    dp.add_handler(CommandHandler("work", will_it_end))
     dp.add_handler(MessageHandler([Filters.text], translate_input))  # Фильтруем по типу текст и отвечаем
 
     dp.add_error_handler(show_error)
@@ -20,10 +20,17 @@ def main():
     updater.idle()
 
 
+def will_it_end(bot, update):
+    end = time(18, 30, 0, 0)
+    now = datetime.now().time()
+    when = datetime.combine(date.today(), end) - datetime.combine(date.today(), now)
+    bot.sendMessage(update.message.chat_id, 'потерпи еще ' + str(when))
+
+
 def moon_status(bot, update):
     # print(ephem.next_full_moon('2016/10/01'))
     print('0')
-    now = datetime.datetime.now()
+    now = datetime.now()
     print('1')
     date = str(now.year) + '/' + str(now.month) + '/' + str(now.day)
     print('2')
