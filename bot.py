@@ -3,6 +3,7 @@ from yandex_translate import YandexTranslate
 import telegram
 import ephem
 from datetime import datetime, date, time
+from tj_scrapper import get_posts
 
 
 def main():
@@ -14,10 +15,20 @@ def main():
     dp.add_handler(CommandHandler("moon", moon_status))
     dp.add_handler(CommandHandler("work", will_it_end))
     dp.add_handler(MessageHandler([Filters.text], translate_input))  # Фильтруем по типу текст и отвечаем
+    dp.add_handler(CommandHandler("twitter", get_twitter_top_daily))  # tj_twitter_top_posts
 
     dp.add_error_handler(show_error)
     updater.start_polling()
     updater.idle()
+
+
+def get_twitter_top_daily(bot, update):
+    text = update.message.text
+    print(text)
+    if 'twitter' in text:
+        posts = get_posts()
+        for post in posts:
+            bot.sendMessage(update.message.chat_id, post)
 
 
 def will_it_end(bot, update):
@@ -41,7 +52,6 @@ def moon_status(bot, update):
         bot.sendMessage(update.message.chat_id, 'Следующее полнолуние будет ' + str(ephem.next_full_moon(date)))
     elif 'растущая' in text or 'Растущая' in text:
         bot.sendMessage(update.message.chat_id, 'Растущая луна будет ' + str(ephem.next_new_moon(date)))
-
 
 
 def calc_me(bot, update):
